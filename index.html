@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Web Area Suhu Permukaan</title>
+    <link rel="stylesheet" href="library/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="library/leaflet/leaflet.js"></script>
+    <script src="library/leaflet-providers-master/leaflet-providers.js"></script>
+    <script src="library/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="map">
+        <script>
+            var map = L.map('map').setView([-7.799449, 110.447909], 15);
+
+            var baseLayers = {
+                'Esri WorldTopoMap': L.tileLayer.provider('Esri.WorldTopoMap'),
+                'Esri WorldImagery': L.tileLayer.provider('Esri.WorldImagery').addTo(map),
+                'OSM Default': L.tileLayer.provider('OpenStreetMap.DE'),
+            };
+
+
+            /* Memanggil Layer Suhu */
+            var AreaSuhu = L.geoJson(null, {
+                style: function(feature) {
+                    return {
+                        color: "black",
+                        fillColor: KlasSuhu[feature.properties.Keterangan],
+                        weight: 0.3,
+                        opacity: 0,
+                        fillOpacity: 0.7
+                    };
+                },
+                onEachFeature: function( feature, layer ){
+                    layer.bindPopup(
+                        "Klas Suhu : " + "<left>" + feature.properties.Keterangan + "</left>" + "<br>" +
+                        "Luas :" + "<left>" + feature.properties.Shape_Area + "</left>" + " m2"
+                        )
+                }
+            });
+            $.getJSON("data/Suhu1.json", function(data) {
+                AreaSuhu.addData(data);
+            });
+
+			/* Merubah Tampilan Warna Berdasar Atribut Keterangan */
+			var KlasSuhu = {
+				"Sejuk":"#48f542",
+				"Biasa":"#f5e342",
+				"Panas":"#f54242",
+			};
+
+            var mapLayers = {
+                'Area Suhu Permukaan': AreaSuhu
+            };
+
+            L.control.layers(baseLayers, mapLayers).addTo(map);
+        </script>
+    </div>
+</body>
+
+</html>
